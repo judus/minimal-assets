@@ -133,8 +133,8 @@ class AssetsController
 
         foreach ($modules->getArray() as $moduleName => $values) {
 
-            if ($this->request->segment(1) == strtolower($moduleName) ||
-                $this->request->segment(1) . '/' . $this->request->segment(2) == strtolower($moduleName)) {
+            if ($this->request->segment(2) == strtolower($moduleName) ||
+                $this->request->segment(2) . '/' . $this->request->segment(3) == strtolower($moduleName)) {
 
                 $modulesPath = $this->config->item('paths.modules');
 
@@ -164,10 +164,11 @@ class AssetsController
     protected function serve($fileSegmentPath)
     {
         $filePath = $this->getPath($fileSegmentPath);
-
         if (!file_exists($filePath)) {
             $filePath = $this->searchModules($fileSegmentPath);
         }
+
+
 
         if (is_null($filePath)) {
             $this->response->status404();
