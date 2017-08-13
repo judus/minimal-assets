@@ -18,6 +18,9 @@
       "Maduser\\Minimal\\Assets\\": "src/"
     }
   },
+  "require": {
+    "minimal/minimal": "*"
+  },
   "require-dev": {
     "phpunit/phpunit": "4.*"
   },
