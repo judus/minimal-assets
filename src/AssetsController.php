@@ -52,40 +52,24 @@ class AssetsController
      */
     protected $basePath = null;
 
-
     /**
-     * PageController constructor.
+     * AssetsController constructor.
      *
      * @param ConfigInterface   $config
-     * @param RequestInterface  $request
-     * @param RouterInterface   $router
-     * @param ResponseInterface $response
-     * @param ViewInterface     $view
-     * @param AssetsInterface   $assets
      * @param FactoryInterface  $modules
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      */
     public function __construct(
         ConfigInterface $config,
+        FactoryInterface $modules,
         RequestInterface $request,
-        RouterInterface $router,
-        ResponseInterface $response,
-        ViewInterface $view,
-        AssetsInterface $assets,
-        FactoryInterface $modules
+        ResponseInterface $response
     ) {
-        /** @var \Maduser\Minimal\Config\Config $config */
-        /** @var \Maduser\Minimal\Http\Request $request */
-        /** @var \Maduser\Minimal\Routing\Router $router */
-        /** @var \Maduser\Minimal\Http\Response $response */
-        /** @var \Maduser\Minimal\Views\View $view */
-        /** @var \Maduser\Minimal\Assets\Assets $assets */
         $this->config = $config;
-        $this->request = $request;
-        $this->router = $router;
-        $this->response = $response;
-        $this->view = $view;
-        $this->assets = $assets;
         $this->modules = $modules;
+        $this->request = $request;
+        $this->response = $response;
     }
 
     /**
