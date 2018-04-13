@@ -2,7 +2,7 @@
 
 namespace Maduser\Minimal\Assets;
 
-use Maduser\Minimal\Framework\Contracts\FactoryInterface;
+use Maduser\Minimal\Modules\Contracts\ModulesInterface;
 use Maduser\Minimal\Assets\Contracts\AssetsInterface;
 use Maduser\Minimal\Config\Contracts\ConfigInterface;
 use Maduser\Minimal\Http\Contracts\RequestInterface;
@@ -62,7 +62,6 @@ class AssetsController
      * @param ResponseInterface $response
      * @param ViewInterface     $view
      * @param AssetsInterface   $assets
-     * @param FactoryInterface  $modules
      */
     public function __construct(
         ConfigInterface $config,
@@ -71,7 +70,7 @@ class AssetsController
         ResponseInterface $response,
         ViewInterface $view,
         AssetsInterface $assets,
-        FactoryInterface $modules
+        ModulesInterface $modules
     ) {
         /** @var \Maduser\Minimal\Config\Config $config */
         /** @var \Maduser\Minimal\Http\Request $request */
@@ -79,6 +78,7 @@ class AssetsController
         /** @var \Maduser\Minimal\Http\Response $response */
         /** @var \Maduser\Minimal\Views\View $view */
         /** @var \Maduser\Minimal\Assets\Assets $assets */
+        /** @var \Maduser\Minimal\Modules\Registry $modules */
         $this->config = $config;
         $this->request = $request;
         $this->router = $router;
@@ -129,9 +129,9 @@ class AssetsController
      */
     protected function searchModules($fileSegmentPath)
     {
-        $modules = $this->modules->getModules();
+        $modules = $this->modules->all();
 
-        foreach ($modules->getArray() as $moduleName => $values) {
+        foreach ($modules as $moduleName => $values) {
 
             if ($this->request->segment(2) == strtolower($moduleName) ||
                 $this->request->segment(2) . '/' . $this->request->segment(3) == strtolower($moduleName)) {
