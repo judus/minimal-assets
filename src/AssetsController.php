@@ -2,6 +2,7 @@
 
 namespace Maduser\Minimal\Assets;
 
+use Maduser\Minimal\Config\Exceptions\KeyDoesNotExistException;
 use Maduser\Minimal\Modules\Contracts\ModulesInterface;
 use Maduser\Minimal\Assets\Contracts\AssetsInterface;
 use Maduser\Minimal\Config\Contracts\ConfigInterface;
@@ -18,159 +19,43 @@ class AssetsController
     protected $config;
 
     /**
-     * @var RequestInterface
-     */
-    protected $request;
-
-    /**
-     * @var RouterInterface
-     */
-    protected $router;
-
-    /**
      * @var ResponseInterface
      */
     protected $response;
 
     /**
-     * @var ViewInterface
-     */
-    protected $view;
-
-    /**
-     * @var AssetsInterface
-     */
-    protected $assets;
-
-    /**
-     * @var null
-     */
-    private $modules;
-
-    /**
-     * @var null
-     */
-    protected $basePath = null;
-
-
-    /**
      * AssetsController constructor.
      *
      * @param ConfigInterface   $config
-     * @param RequestInterface  $request
-     * @param RouterInterface   $router
      * @param ResponseInterface $response
-     * @param ViewInterface     $view
-     * @param AssetsInterface   $assets
      */
     public function __construct(
         ConfigInterface $config,
-        RequestInterface $request,
-        RouterInterface $router,
-        ResponseInterface $response,
-        ViewInterface $view,
-        AssetsInterface $assets,
-        ModulesInterface $modules
+        ResponseInterface $response
     ) {
         /** @var \Maduser\Minimal\Config\Config $config */
-        /** @var \Maduser\Minimal\Http\Request $request */
-        /** @var \Maduser\Minimal\Routing\Router $router */
         /** @var \Maduser\Minimal\Http\Response $response */
-        /** @var \Maduser\Minimal\Views\View $view */
-        /** @var \Maduser\Minimal\Assets\Assets $assets */
-        /** @var \Maduser\Minimal\Modules\Registry $modules */
         $this->config = $config;
-        $this->request = $request;
-        $this->router = $router;
         $this->response = $response;
-        $this->view = $view;
-        $this->assets = $assets;
-        $this->modules = $modules;
     }
 
     /**
+     * @param $alias
+     * @param $path
+     *
      * @return string
      */
-    protected function getBasePath()
+    public function serve($alias, $path)
     {
-        if ($this->basePath) {
-            return rtrim($this->basePath, '/') . '/';
+        $filePath = '';
+
+        try {
+            $filePath = $this->config->item('assets.routes.' . $alias) . '/' . $path;
+        } catch (KeyDoesNotExistException $e) {
+            $this->response->status404();
         }
 
-        /* Default if not defined */
-
-        return $_SERVER['DOCUMENT_ROOT'] . '/assets/';
-    }
-
-    /**
-     * @param $filePath
-     *
-     * @return string
-     */
-    protected function getPath($filePath)
-    {
-        return $this->getBasePath() . $filePath;
-    }
-
-    /**
-     * @param $filePath
-     *
-     * @return mixed
-     */
-    public function getAsset($filePath)
-    {
-        return $this->serve($filePath);
-    }
-
-    /**
-     * @param $fileSegmentPath
-     *
-     * @return null|string
-     */
-    protected function searchModules($fileSegmentPath)
-    {
-        $modules = $this->modules->all();
-
-        foreach ($modules as $moduleName => $values) {
-
-            if ($this->request->segment(2) == strtolower($moduleName) ||
-                $this->request->segment(2) . '/' . $this->request->segment(3) == strtolower($moduleName)) {
-
-                $modulesPath = $this->config->item('paths.modules');
-
-                $str = strtolower($moduleName);
-
-                if (substr($str, 0, strlen($str)) == $str) {
-                    $uri = substr($fileSegmentPath, strlen($str));
-
-                    $filePath = rtrim($this->config->item('paths.system'),
-                            '/') . '/' . $modulesPath . '/' . $moduleName . '/' . $uri;
-
-                    if (file_exists($filePath)) {
-                        return $filePath;
-                    };
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * @param $fileSegmentPath
-     *
-     * @return string
-     */
-    protected function serve($fileSegmentPath)
-    {
-        $filePath = $this->getPath($fileSegmentPath);
         if (!file_exists($filePath)) {
-            $filePath = $this->searchModules($fileSegmentPath);
-        }
-
-
-
-        if (is_null($filePath)) {
             $this->response->status404();
         }
 
